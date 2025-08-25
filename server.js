@@ -18,7 +18,7 @@ app.use(
       const allowedOrigins = [
         'http://localhost:3000',
         'http://localhost:5173',
-        'https://naqvix.vercel.app',
+        'https://naqvix-main.vercel.app',
         'https://naqvix-admin-eight.vercel.app',
       ];
       if (!origin) return callback(null, true);
