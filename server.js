@@ -20,6 +20,7 @@ app.use(
         'http://localhost:5173',
         'https://naqvix-main.vercel.app',
         'https://naqvix-admin-eight.vercel.app',
+        'https://naqvix.com',
       ];
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
