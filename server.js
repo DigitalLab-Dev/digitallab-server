@@ -14,7 +14,7 @@ connectDB();
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+      const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173','https://digitallab-admin.vercel.app','https://digitallab-xi.vercel.app'];
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
@@ -29,7 +29,7 @@ app.use(
 );
 app.use(express.json());
 app.get('/', (req, res) => {
-  res.send('✅ Naqvix server is running successfully');
+  res.send('✅ Digital Lab server is running successfully');
 });
 app.use((err, req, res, next) => {
   console.error('❌ Server Error:', err);
