@@ -4,7 +4,7 @@ import cloudinary from "../configs/cloudinary.js";
 // Create a new team member with single image
 export const createTeamMember = async (req, res) => {
   try {
-    const { name, designation } = req.body;
+    const { name, designation, description } = req.body;
     if (!req.file) return res.status(400).json({ message: "Image is required" });
 
     // Upload image to Cloudinary
@@ -20,6 +20,7 @@ export const createTeamMember = async (req, res) => {
     const newMember = new Team({
       name,
       designation,
+      description,
       image: uploadRes.secure_url,
       cloudinary_id: uploadRes.public_id,
     });
@@ -56,6 +57,7 @@ export const getTeamMemberById = async (req, res) => {
 export const updateTeamMember = async (req, res) => {
   try {
     const updateData = { ...req.body };
+
     if (req.file) {
       // Upload new image
       const uploadRes = await new Promise((resolve, reject) => {
