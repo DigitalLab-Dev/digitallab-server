@@ -14,7 +14,7 @@ connectDB();
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173','https://digitallab-admin.vercel.app','https://digitallab-xi.vercel.app'];
+      const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173','https://digitallab-admin.vercel.app','https://digitallab-xi.vercel.app','https://www.digitallabservices.com'];
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
