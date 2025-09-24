@@ -8,6 +8,7 @@ import videoRouter from './routes/video.js';
 import galleryRouter from './routes/gallery.js';
 import teamRouter from './routes/team.js';
 import faqRouter from './routes/FAQ.js';
+import emailRouter from './routes/emailRouter.js';
 const app = express();
 const PORT = process.env.PORT || 4000;
 connectDB();
@@ -41,6 +42,7 @@ app.use('/api/community/video', videoRouter);
 app.use('/api/community/gallery', galleryRouter);
 app.use('/api/team', teamRouter);
 app.use('/api/faq', faqRouter);
+app.use("/api/email", emailRouter);
 app.listen(PORT, () => {
   console.log(`Digital Lab Server running at http://localhost:${PORT}`);
 });
