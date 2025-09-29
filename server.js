@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-// import connectDB from './configs/db.js';
+import connectDB from './configs/db.js';
 import blogRouter from './routes/BlogRoutes.js';
 import teamRouter from './routes/team.js';
 import faqRouter from './routes/FAQ.js';
@@ -10,14 +10,9 @@ import reviewRouter from './routes/ReviewRoutes.js';
 import mongoose from "mongoose";
 const app = express();
 const PORT = process.env.PORT || 4000;
-// connectDB();
+connectDB();
 
-mongoose
-  .connect(process.env.MONGODB_URL, {
-    serverSelectionTimeoutMS: 20000, // 20s timeout
-  })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+
 
 app.use(
   cors({
