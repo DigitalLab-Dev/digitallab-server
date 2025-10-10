@@ -10,7 +10,17 @@ import reviewRouter from './routes/ReviewRoutes.js';
 import mongoose from "mongoose";
 const app = express();
 const PORT = process.env.PORT || 4000;
-connectDB();
+// connectDB();
+
+
+
+mongoose.connect(process.env.MONGODB_URL, {
+  family: 4, // Force IPv4 (this is important!)
+  serverSelectionTimeoutMS: 30000,
+  socketTimeoutMS: 75000,
+})
+.then(() => console.log('✅ MongoDB Connected'))
+.catch(err => console.error('❌ MongoDB Error:', err.message));
 
 
 
