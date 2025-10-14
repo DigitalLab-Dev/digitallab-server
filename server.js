@@ -7,6 +7,7 @@ import teamRouter from './routes/team.js';
 import faqRouter from './routes/FAQ.js';
 import emailRouter from './routes/emailRouter.js';
 import reviewRouter from './routes/ReviewRoutes.js';
+import influencerRoutes from './routes/Influencerroutes.js';
 import mongoose from "mongoose";
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -36,7 +37,7 @@ app.use(
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 );
@@ -53,6 +54,7 @@ app.use('/api/team', teamRouter);
 app.use('/api/faq', faqRouter);
 app.use("/api/email", emailRouter);
 app.use('/api/review',reviewRouter);
+app.use("/api/influencers", influencerRoutes);
 app.listen(PORT, () => {
   console.log(`Digital Lab Server running at http://localhost:${PORT}`);
 });

@@ -1,6 +1,7 @@
 import cloudinary from "../configs/cloudinary.js";
 import Review from "../models/Review.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 
 // ✅ Create new review with Cloudinary image upload
 export const createReview = async (req, res) => {
