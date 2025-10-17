@@ -1,25 +1,40 @@
 import Influencer from "../models/Influencer.js";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from 'url';
+import cloudinary from "../configs/cloudinary.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Helper function to upload buffer to Cloudinary
+const uploadToCloudinary = async (buffer, originalname) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'influencers',
+        resource_type: 'image',
+        public_id: `${Date.now()}-${originalname.split('.')[0]}`,
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result.secure_url);
+        }
+      }
+    );
+    
+    uploadStream.end(buffer);
+  });
+};
 
-// Helper function to save buffer to disk
-const saveBufferToFile = (buffer, originalname) => {
-  const filename = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(originalname);
-  const uploadsDir = path.join(__dirname, '../uploads');
-  
-  // Create uploads directory if it doesn't exist
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+// Helper function to delete image from Cloudinary
+const deleteFromCloudinary = async (imageUrl) => {
+  try {
+    // Extract public_id from URL
+    const urlParts = imageUrl.split('/');
+    const publicIdWithExt = urlParts.slice(-2).join('/'); // folder/filename.ext
+    const publicId = publicIdWithExt.split('.')[0]; // Remove extension
+    
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    console.error('Error deleting from Cloudinary:', error);
   }
-  
-  const uploadPath = path.join(uploadsDir, filename);
-  fs.writeFileSync(uploadPath, buffer);
-  
-  return filename;
 };
 
 // 🟢 Create influencer
@@ -39,8 +54,8 @@ export const createInfluencer = async (req, res) => {
       return res.status(400).json({ message: "Image is required" });
     }
 
-    // Save buffer to disk and get filename
-    const filename = saveBufferToFile(req.file.buffer, req.file.originalname);
+    // Upload to Cloudinary
+    const imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
 
     // Split keywords by comma and trim whitespace
     const keywordsArray = keywords ? keywords.split(",").map(k => k.trim()).filter(k => k) : [];
@@ -48,7 +63,7 @@ export const createInfluencer = async (req, res) => {
     const influencer = await Influencer.create({ 
       name: name.trim(), 
       desc: desc.trim(), 
-      pic: filename, 
+      pic: imageUrl, 
       keywords: keywordsArray 
     });
 
@@ -102,8 +117,17 @@ export const updateInfluencer = async (req, res) => {
 
     // Handle image if uploaded
     if (req.file && req.file.buffer) {
-      const filename = saveBufferToFile(req.file.buffer, req.file.originalname);
-      updateData.pic = filename;
+      // Get the old influencer to delete old image
+      const oldInfluencer = await Influencer.findById(req.params.id);
+      
+      if (oldInfluencer && oldInfluencer.pic) {
+        // Delete old image from Cloudinary
+        await deleteFromCloudinary(oldInfluencer.pic);
+      }
+
+      // Upload new image to Cloudinary
+      const imageUrl = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+      updateData.pic = imageUrl;
     }
 
     console.log('Update data:', updateData);
@@ -130,10 +154,23 @@ export const updateInfluencer = async (req, res) => {
 // 🔴 Delete influencer
 export const deleteInfluencer = async (req, res) => {
   try {
-    const deleted = await Influencer.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Not found" });
+    const influencer = await Influencer.findById(req.params.id);
+    
+    if (!influencer) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    // Delete image from Cloudinary if exists
+    if (influencer.pic) {
+      await deleteFromCloudinary(influencer.pic);
+    }
+
+    // Delete influencer from database
+    await Influencer.findByIdAndDelete(req.params.id);
+    
     res.status(200).json({ message: "Influencer deleted successfully" });
   } catch (error) {
+    console.error('Delete error:', error);
     res.status(500).json({ message: error.message });
   }
 };
