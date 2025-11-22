@@ -56,7 +56,7 @@ app.use("/api/influencers", influencerRoutes);
 // ✅ Error handler (must be last)
 app.use((err, req, res, next) => {
   console.error('❌ Server Error:', err);
-  res.status(500).json({ error: 'Internal Server Error' });
+  res.status(500).json({ error:err.message|| 'Internal Server Error' });
 });
 
 app.listen(PORT, () => {

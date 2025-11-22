@@ -82,7 +82,6 @@ export const updateTeamMember = async (req, res) => {
   }
 };
 
-// Delete a team member
 export const deleteTeamMember = async (req, res) => {
   try {
     const member = await Team.findById(req.params.id);
