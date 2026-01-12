@@ -7,7 +7,9 @@ export const sendEmail = async (req, res) => {
     const { name, email, service, message } = req.body;
 
     if (!name || !email || !service || !message) {
-      return res.status(400).json({ success: false, error: "All fields are required" });
+      return res
+        .status(400)
+        .json({ success: false, error: "All fields are required" });
     }
 
     // Create transporter
@@ -22,7 +24,7 @@ export const sendEmail = async (req, res) => {
     // Mail options
     const mailOptions = {
       from: `"${name}" <${email}>`,
-      to: "digitallab514@gmail.com",
+      to: process.env.RECEIVER_EMAIL || "digitallab514@gmail.com",
       subject: `New Service Request: ${service}`,
       html: `
         <h2>New Inquiry from Digital Lab Website</h2>
@@ -39,6 +41,8 @@ export const sendEmail = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Email sent successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message||"Failed to send email" });
+    res
+      .status(500)
+      .json({ success: false, error: error.message || "Failed to send email" });
   }
 };
