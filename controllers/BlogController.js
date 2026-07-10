@@ -109,7 +109,7 @@ export const getBlogs = async (req, res) => {
 
     // Query blogs
     const blogs = await Blog.find(filter)
-      .select('title slug excerpt category readingTime images createdAt views')
+      .select('title slug excerpt category readingTime images createdAt updatedAt views')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
