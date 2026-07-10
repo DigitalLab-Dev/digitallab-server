@@ -14,7 +14,13 @@ const BlogSchema = new Schema(
       },
     ],
     category: { type: String, required: true },
-    views: { type: Number, default: 0 }, 
+    views: { type: Number, default: 0 },
+    faqs: [
+      {
+        question: { type: String, required: true },
+        answer: { type: String, required: true },
+      },
+    ],
   },
   { timestamps: true } 
 );

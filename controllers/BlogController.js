@@ -14,6 +14,21 @@ export const createBlog = async (req, res) => {
         .json({ error: 'All required fields must be filled' });
     }
 
+    // faqs is optional; sent as a JSON string when submitted via
+    // multipart/form-data (same pattern as existingImages in updateBlog).
+    let faqs = [];
+    if (req.body.faqs) {
+      if (typeof req.body.faqs === 'string') {
+        try {
+          faqs = JSON.parse(req.body.faqs);
+        } catch {
+          faqs = [];
+        }
+      } else {
+        faqs = req.body.faqs;
+      }
+    }
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'At least one image is required' });
     }
@@ -50,6 +65,7 @@ export const createBlog = async (req, res) => {
       images: uploadedUrls,
       category,
       views: 0,
+      faqs,
     });
 
     return res.status(201).json({
@@ -126,11 +142,14 @@ export const getBlogBySlug = async (req, res) => {
       });
     }
 
-    // Find blog by slug and increment views atomically
+    // Find blog by slug and increment views atomically.
+    // timestamps: false so a page view doesn't bump `updatedAt` (which
+    // would otherwise falsely reset dateModified in the frontend's
+    // BlogPosting JSON-LD on every visit).
     const blog = await Blog.findOneAndUpdate(
       { slug },
       { $inc: { views: 1 } },
-      { new: true }
+      { new: true, timestamps: false }
     );
     if (!blog) {
       return res.status(404).json({
@@ -251,6 +270,20 @@ export const updateBlog = async (req, res) => {
     blog.excerpt = req.body.excerpt || blog.excerpt;
     blog.content = req.body.content || blog.content;
     blog.category = req.body.category || blog.category;
+
+    // faqs is optional; sent as a JSON string when submitted via
+    // multipart/form-data (same pattern as existingImages above).
+    if (req.body.faqs) {
+      if (typeof req.body.faqs === 'string') {
+        try {
+          blog.faqs = JSON.parse(req.body.faqs);
+        } catch {
+          // Leave blog.faqs unchanged if the sent value isn't valid JSON.
+        }
+      } else {
+        blog.faqs = req.body.faqs;
+      }
+    }
 
     // Recalculate reading time if content was updated
     if (req.body.content) {
