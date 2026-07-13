@@ -264,7 +264,12 @@ export const updateBlog = async (req, res) => {
     // Update blog fields
     if (req.body.title) {
       blog.title = req.body.title;
-      blog.slug = generateSlug(req.body.title); // update slug if title changes
+      // Allow an explicit slug override (e.g. a shorter SEO-focused slug
+      // that doesn't match the full title); default to auto-generating
+      // from the title, same as before, when no override is sent.
+      blog.slug = req.body.slug
+        ? generateSlug(req.body.slug)
+        : generateSlug(req.body.title);
     }
 
     blog.excerpt = req.body.excerpt || blog.excerpt;
