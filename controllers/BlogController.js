@@ -107,9 +107,17 @@ export const getBlogs = async (req, res) => {
     // Count total
     const totalBlogs = await Blog.countDocuments(filter);
 
+    // `full=true` includes content/faqs in one batched query (e.g. for
+    // llms-full.txt) instead of N+1 per-post fetches through the
+    // view-incrementing single-blog endpoint.
+    const includeFull = req.query.full === 'true';
+    const selectFields = includeFull
+      ? 'title slug excerpt content faqs category readingTime images createdAt updatedAt views'
+      : 'title slug excerpt category readingTime images createdAt updatedAt views';
+
     // Query blogs
     const blogs = await Blog.find(filter)
-      .select('title slug excerpt category readingTime images createdAt updatedAt views')
+      .select(selectFields)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
